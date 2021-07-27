@@ -66,72 +66,6 @@ module.exports = class Ant {
           bestChoice.x > 1 ? 1 : bestChoice.x < -1 ? -1 : bestChoice.x,
           bestChoice.y > 1 ? 1 : bestChoice.y < -1 ? -1 : bestChoice.y,
         ];
-
-    let plus1dir =
-        moves[
-          this.lastDir + 1 > 7 ? 0 : this.lastDir + 1 < 0 ? 7 : this.lastDir + 1
-        ],
-      minus1dir =
-        moves[
-          this.lastDir - 1 > 7 ? 0 : this.lastDir - 1 < 0 ? 7 : this.lastDir - 1
-        ],
-      defdir = moves[this.lastDir];
-
-    let plus1 = [plus1dir[0] + this.x, plus1dir[1] + this.y];
-    let minus1 = [minus1dir[0] + this.x, minus1dir[1] + this.y];
-    let def = [defdir[0] + this.x, defdir[1] + this.y];
-
-    if (
-      this.map[plus1[0]] == undefined ||
-      this.map[minus1[0]] == undefined ||
-      this.map[def[0]] == undefined
-    )
-      return this.invertDir(moves[this.lastDir]);
-
-    if (
-      this.map[plus1[0]][plus1[1]] == undefined ||
-      this.map[minus1[0]][minus1[1]] == undefined ||
-      this.map[def[0]][def[1]] == undefined
-    )
-      return this.invertDir(moves[this.lastDir]);
-
-    if (this.hasFood) {
-      let mP = this.map[minus1[0]][minus1[1]].pheromon.home,
-        pP = this.map[plus1[0]][plus1[1]].pheromon.home,
-        dP = this.map[def[0]][def[1]].pheromon.home;
-
-      let p = { dir: minus1dir, val: mP };
-      if (pP > p.val) p = { dir: plus1dir, val: pP };
-      if (dP > p.val) p = { dir: defdir, val: dP };
-
-      return this.map[minus1[0]][minus1[1]].type == 2
-        ? minus1dir
-        : this.map[plus1[0]][plus1[1]].type == 2
-        ? plus1dir
-        : this.map[def[0]][def[1]].type == 2
-        ? defdir
-        : p.val > 0
-        ? p.dir
-        : moves[this.newRandDir()];
-    } else {
-      let mP = this.map[minus1[0]][minus1[1]].pheromon.food,
-        pP = this.map[plus1[0]][plus1[1]].pheromon.food,
-        dP = this.map[def[0]][def[1]].pheromon.food;
-
-      let p = { dir: minus1dir, val: mP };
-      if (pP > p.val) p = { dir: plus1dir, val: pP };
-      if (dP > p.val) p = { dir: defdir, val: dP };
-
-      return this.map[minus1[0]][minus1[1]].type == 1
-        ? minus1dir
-        : this.map[plus1[0]][plus1[1]].type == 1
-        ? plus1dir
-        : this.map[def[0]][def[1]].type == 1
-        ? defdir
-        : p.val > 0
-        ? p.dir
-        : moves[this.newRandDir()];
-    }
   }
 
   makeMove(e) {
@@ -158,7 +92,7 @@ module.exports = class Ant {
     } else if (this.map[newPos[0]][newPos[1]].type == 2 && this.hasFood) {
       this.ownPStr = 0.8;
       this.hasFood = false;
-
+      this.mapFunctions.foodCollected(newPos[0], newPos[1]);
       this.lastDir = this.getMoveIndex(this.invertDir(moves[this.lastDir]));
     } else {
       if (
